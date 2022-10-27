@@ -1,11 +1,15 @@
 import {useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 
-
+import {evaluate} from 'mathjs';
 function App() {
   const [calc,setCalc]=useState("");
   const [result,setResult]=useState("");
-  
+  /*const [expression,setExpression]=useState({
+    op1:0,
+    op:'',
+    op2:0
+  });*/
   const ops=['/','*','-','+','.'];
 
   const updateCalc=(value)=>{
@@ -22,24 +26,31 @@ function App() {
             break;
           }
         }
-        console.log("opeeee",operande);
         let op=calc.slice(calc.lastIndexOf(operande)+1,calc.length);
-              console.log("operande",op);
               if(op.includes('.')){
                 return ;
               }
       }
     }
-    if(ops.includes(value)&& ops.includes(calc.slice(-1))){
-      return ;
-    }
+    
     if(value==="0" && calc==="0"){
       return ;
     }
+    if(ops.includes(value)&& ops.includes(calc.slice(-1))){
+      if(value==='-'){
+        if(calc.slice('-1')==='+'){
+          setCalc(calc.slice(0,-1)+value);    
+        }
+        else setCalc(calc+value);
+      }else
+      setCalc(calc.slice(0,-1)+value)
+    }else
     setCalc(calc+value);
     if(!ops.includes(value)){
-      setResult(eval(calc+value).toString());
+      setResult(calc+value);
     }
+    console.log('calc',calc,' result',result);
+
   }
   
   const reset=()=>{
@@ -48,7 +59,7 @@ function App() {
     
   }
 
-  const createDigits=()=>{
+  /*const createDigits=()=>{
     const digits=[];
     for ( let i=1;i<10;i++){
       digits.push(<button onClick={()=>updateCalc(i.toString())} key={i}>{i}</button>)
@@ -56,15 +67,102 @@ function App() {
 
     return digits;
   }
-
+  */
   const calculate=()=>{
-    setCalc(eval(calc).toString());
+    setCalc(evaluate(calc).toString());
+  /*let opT=calc.split(/[+]/g).map(
+    ele=>{
+      if(!/^-?\d+$/.test(ele)){
+        return ele;
+      }else
+      return ele;  
+    }
+  );
+    //console.log('opttt',opT);
+  let Sus=opT.map(elem=>{
+    if(/^-?\d+$/.test(elem)){
+      //console.log('elem',elem);
+      return elem;}
+      else
+      return elem.split('-');
+  }
+  );
+  //console.log('susTab',Sus);
+  let Mult=Sus.map(elem=>{
+    if(typeof(elem)==='object'){
+      //console.log("simple element",elem);
+      let k=elem.map(el=>{
+        if(/^-?\d+$/.test(el)){
+          //console.log('elem',el);
+          return el;}
+          else
+          return el.split('*');
+      })
+      //console.log('kkk',k);
+      return k;
+    }else{
+      return elem;
+    }
+  });
+    //console.log('ok',opT);
+    //console.log('sus',Sus);
+    console.log('Mul',Mult);
+
+    let sum=0;
+    let sustr=0;
+    let Mul=0;
+    for(let i=0;i<Mult.length;i++){
+      
+      if(typeof(Mult[i])!=='object'){
+        
+
+        sum+=parseFloat(Mult[i]);
+        console.log('somme est ',sum,'element est ',Mult[i]);
+      }else{
+        // sustraction
+        sustr='nan';
+        for(let j=0;j<Mult[i].length;j++){
+          if(typeof(Mult[i][j])!='object'){
+            console.log(Mult[i][j]);
+            if(sustr==='nan'){
+              sustr=Mult[i][j];
+            }else
+            sustr-=Mult[i][j];
+          }else{
+            Mul=1;
+            for(let k=0;k<Mult[i][j].length;k++){
+              if(typeof(Mult[i][j][k])!='object'){
+                console.log(Mult[i][j][k]);
+                Mul*=Mult[i][j][k];
+                
+              }
+            }
+            //sustr+=parseFloat(Mul);
+          }
+        }
+        sum+=sustr;
+
+      }
+
+    }
+    console.log('sum is',sum);
+    console.log('sustraction is',sustr);
+    console.log('multiplication is',Mul);
+    
+    /*console.log('soustraction',opS);
+   console.log('mult',opM);
+   console.log('multi somme',opD);
+   console.log('tab de multiplication',TM);*/
+   
   }
   return (
     <div id='mainContent' className='bg-success'>
-      <main className='vh-100 d-flex flex-column justify-content-center align-items-center'>
+      
+      <main className='container-fluid bg-dark vh-100 d-flex flex-column justify-content-center align-items-center'>
         <div className='container border border-info border-3 w-50 p-0' id='calcul'>
-            <h2 id='display' className='text-end bg-white m-0'>{calc || "0"}
+          <h1 className='text-center text-white py-2'>Calculate</h1>
+            <h2 id='display' className='text-end bg-white m-0 py-2 px-2'>
+              {calc || "0"}
             </h2>
             <div className='row m-0'>
                 <div className='col-6 p-0'>
